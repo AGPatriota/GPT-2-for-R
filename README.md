@@ -1,11 +1,11 @@
 # GPT2 for R
 
 
-The OpenAI Generative Pre-Trained Transformer [GPT2](https://huggingface.co/docs/transformers/model_doc/gpt2#openai-gpt2) is now translated into R language. The original GPT2 paper can be read [here](https://d4mucfpksywv.cloudfront.net/better-language-models/language_models_are_unsupervised_multitask_learners.pdf) and the GPT2 GitHub can be accessed [here](https://github.com/openai/gpt-2).
+The OpenAI Generative Pre-Trained Transformer [GPT2](https://huggingface.co/docs/transformers/model_doc/gpt2#openai-gpt2) is now translated into R language. The original GPT2 paper can be read [here](https://d4mucfpksywv.cloudfront.net/better-language-models/language_models_are_unsupervised_multitask_learners.pdf) and the GPT2 GitHub can be accessed [here](https://github.com/openai/gpt-2). 
 
-The model in this repository is not a wrapper of the original GPT2. It is written entirely in R language with the weights trained by OpenAI.
+The model in this repository is not a wrapper of the original GPT2. It is written entirely in R language with the weights trained by OpenAI. Before running the model, make sure you have downloaded the required weights [here](https://drive.google.com/file/d/1jnYn3kaVyoLcGEmDBCOFNPAslrs2tRo4/view?usp=sharing) to the main folder.
 
-I would like to thanks [Álvaro Kothe](https://github.com/Alvaro-Kothe) for helping me to organize some parts of the code in an [early version](https://github.com/AGPatriota/GPT4R).
+I would like to thank [Álvaro Kothe](https://github.com/Alvaro-Kothe) for helping me to organize some parts of the code in an [early version](https://github.com/AGPatriota/GPT4R).
 
 ## Disclaimer
 
