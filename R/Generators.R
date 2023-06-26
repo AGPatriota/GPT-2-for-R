@@ -7,18 +7,21 @@ tok <- tok::tokenizer$from_pretrained("gpt2")
 ############################################################
 #Loading the model
 ############################################################
- Model0 <- GPT(
+torch::with_device(device = "meta",{
+Model0 <- GPT(
   block_size = 1024,
   n_embd = 768,
   N_Layers = 12,
   nvoc = 50257,
   Head = 12
 )
+})
+
 ############################################################
 #Updating the model with trained parameters from OPENAI
 ############################################################
 
-Model0$load_state_dict(state_dict = torch_load("Model-weights.pt") )
+Model0$load_state_dict(state_dict = torch_load("Model-weights.pt"),  .refer_to_state_dict = TRUE )
 Model0  = if (torch::cuda_is_available()) Model0$cuda() else Model0$cpu()
 
 
@@ -41,11 +44,14 @@ Generate = function(Model=Model0 , max_new_tokens = config$max_new_tokens, tempe
             logits = Model$eval()(idx_cond) 
             logits = logits[,min(idx$size(2),1024), ] / temperature
             if(!is.null(top_k)){
-                v = torch::torch_topk(logits, min(top_k, logits$size(-1)))
-                logits[, -v[[2]][1,]] = -Inf
+                logits = logits$topk(top_k)
+		probs = torch::nnf_softmax(logits[[1]],-1)
+                selected = torch::torch_multinomial(probs, num_samples=1)
+		idx_next <- logits[[2]][,selected$item()]$unsqueeze(1)
 	    }
-            probs = torch::nnf_softmax(logits,-1)
-            idx_next = torch::torch_multinomial(probs, num_samples=1)
+           if(is.null(top_k)){
+                idx_next = torch::torch_max(logits, 2)[[2]]$unsqueeze(1)
+	    }
             idx = torch::torch_cat(list(idx, idx_next), 2)
 	    cat(tok$decode(as.integer(idx_next$cpu()-1)))
 	    idx_next0 <- as.numeric(idx_next$cpu())

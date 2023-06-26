@@ -14,7 +14,7 @@ GPT <- torch::nn_module(
     self$block_size <- block_size
     self$wte <- torch::nn_embedding(nvoc, n_embd)
     self$wpe <- torch::nn_embedding(block_size, n_embd)    
-    self$MH <- torch::nn_module_list(lapply(1:N_Layers, function(x) nn_multihead_attention(n_embd, Head, dropout = p0) ))
+    self$MH <- torch::nn_module_list(lapply(1:N_Layers, function(x) torch::nn_multihead_attention(n_embd, Head, dropout = p0) ))
     self$scale1 <- torch::nn_module_list(lapply(1:N_Layers, function(x) torch::nn_layer_norm(n_embd) ))
     self$scale2 <- torch::nn_module_list(lapply(1:N_Layers, function(x) torch::nn_layer_norm(n_embd) ))
     self$ln_f <- torch::nn_layer_norm(n_embd, elementwise_affine = TRUE)
@@ -31,7 +31,6 @@ GPT <- torch::nn_module(
     x1 <- torch::torch_arange(1, self$block_size, dtype = torch::torch_int(), device = x$device )$unsqueeze(1)
     wei <- torch::torch_zeros(self$block_size, self$block_size,dtype = torch::torch_bool(), device = x$device)
     wei[upper.tri(wei)] <- 1
-    key = NULL
     if (x$size(2) < self$block_size) {
       zeros <- torch::torch_tensor(rep(50257, self$block_size - x$size(2)), dtype = torch::torch_int(), device = x$device)$unsqueeze(1)$expand(c(x$size(1),-1))
       x <- torch::torch_cat(list(x,zeros), 2)
@@ -40,7 +39,7 @@ GPT <- torch::nn_module(
     output <- self$drop0(output)
     for (j in 1:self$N) {
       Q <- torch::torch_transpose(self$scale1[[j]](output), 1, 2)
-      output <- output + torch::torch_transpose(self$MH[[j]](Q, Q, Q, attn_mask = wei, key_padding_mask = key)[[1]], 1, 2  )
+      output <- output + torch::torch_transpose(self$MH[[j]](Q, Q, Q, attn_mask = wei)[[1]], 1, 2  )
       output <- output + self$FFN[[j]](self$scale2[[j]](output))
     }
     output <- self$lm_head(self$ln_f(output))
